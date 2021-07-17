@@ -4,7 +4,7 @@ import { Container, Form, Button } from "react-bootstrap";
 export default function CreateProduct(props) {
   const [title, setTitle] = React.useState("");
   const [description, setDescripition] = React.useState("");
-  const [price, setPrice] = React.useState(null);
+  const [price, setPrice] = React.useState(0);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -14,11 +14,13 @@ export default function CreateProduct(props) {
       description,
       price,
     };
+
+    console.log(data);
   };
 
   return (
     <Container className="col-lg-6">
-      <Form onClick={handleSubmit}>
+      <Form onSubmit={handleSubmit}>
         <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
           <Form.Label>Titre du produit</Form.Label>
           <Form.Control
@@ -46,10 +48,10 @@ export default function CreateProduct(props) {
             onChange={({ target }) => setPrice(target.value)}
           />
         </Form.Group>
+        <Button variant="success" type="submit">
+          Créer
+        </Button>
       </Form>
-      <Button variant="success" type="submit">
-        Créer
-      </Button>
     </Container>
   );
 }
