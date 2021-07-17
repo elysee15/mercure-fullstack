@@ -1,7 +1,6 @@
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
-import { PayloadInterface } from './payload.interface';
 import { Model } from 'mongoose';
 import { User } from './user.interface';
 
@@ -19,7 +18,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
-    const loger = <{ user: object }>payload;
+    const loger = payload as { user: object };
     const userConnect = loger.user;
     const name = userConnect['name'];
     const user = await this.userModel.findOne({ name });
