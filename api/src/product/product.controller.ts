@@ -4,12 +4,12 @@ import {
   Controller,
   Delete,
   Get,
-  Inject,
   Param,
   Post,
   Put,
   Query,
 } from '@nestjs/common';
+import { UserDecorateur } from 'src/decorateur/user.decorator';
 
 @Controller('/products')
 export class ProductsController {
@@ -26,8 +26,8 @@ export class ProductsController {
   }
 
   @Post()
-  async create(@Body() createProductDto: any) {
-    return await this.service.create(createProductDto);
+  async create(@Body() createProductDto: any, @UserDecorateur() user: any) {
+    return await this.service.create(createProductDto, user);
   }
 
   @Put('/:id')

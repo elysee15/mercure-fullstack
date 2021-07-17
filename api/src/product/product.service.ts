@@ -14,8 +14,9 @@ export class ProductsService {
     private productModel: Model<Product>,
   ) {}
 
-  async create(createProductDto: any): Promise<Product> {
+  async create(createProductDto: any, user: any): Promise<Product> {
     const createdProduct = new this.productModel(createProductDto);
+    createdProduct['author'] = user['_id'];
     return await createdProduct.save();
   }
 
