@@ -20,7 +20,11 @@ export class ProductsService {
   }
 
   async findOne(id: string): Promise<Product> {
-    const product = await this.productModel.findById(id);
+    const product = await (await this.productModel.findById(id))
+      .populate({ path: 'author', select: '_id' })
+      .populate({ path: 'author', select: 'name' })
+      .execPopulate();
+    console.log(product);
     if (!product) {
       throw new NotFoundException(`Le produit avec l'id ${id} est introuvable`);
     }
@@ -43,7 +47,7 @@ export class ProductsService {
     if (userId) {
       return filteredProduct;
     }
-    return await this.productModel.find().lean();
+    return await this.productModel.find();
   }
 
   async deleteOne(id: string): Promise<any> {
