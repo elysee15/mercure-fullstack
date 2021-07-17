@@ -1,10 +1,14 @@
 import React from "react";
 import { Container, Form, Button } from "react-bootstrap";
+import axios from "axios";
+import { useHistory } from "react-router";
 
 export default function CreateProduct(props) {
   const [title, setTitle] = React.useState("");
   const [description, setDescripition] = React.useState("");
-  const [price, setPrice] = React.useState(null);
+  const [price, setPrice] = React.useState(0);
+  const [product, setProduct] = React.useState(null);
+  const history = useHistory();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -14,11 +18,29 @@ export default function CreateProduct(props) {
       description,
       price,
     };
+
+    axios
+      .post("http://localhost:3500/products", data, {
+        headers: {
+          Authorization: "Bearer " + window.localStorage.getItem("__TOKEN__"),
+        },
+      })
+      .then((response) => {
+        console.log(response.data);
+        setProduct(response.data);
+
+        history.push("/app");
+      })
+      .catch((error) => {
+        console.error("[CreateProduct] ", error.message);
+      });
+
+    console.log(data);
   };
 
   return (
     <Container className="col-lg-6">
-      <Form onClick={handleSubmit}>
+      <Form onSubmit={handleSubmit}>
         <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
           <Form.Label>Titre du produit</Form.Label>
           <Form.Control
@@ -46,10 +68,10 @@ export default function CreateProduct(props) {
             onChange={({ target }) => setPrice(target.value)}
           />
         </Form.Group>
+        <Button variant="success" type="submit">
+          Créer
+        </Button>
       </Form>
-      <Button variant="success" type="submit">
-        Créer
-      </Button>
     </Container>
   );
 }

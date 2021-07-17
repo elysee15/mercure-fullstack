@@ -17,16 +17,13 @@ export default function Login(props) {
     axios
       .post("http://localhost:3500/users/login", data)
       .then(async (response) => {
-        console.log("[Login]", response.data);
         await window.localStorage.setItem("__TOKEN__", response.data.jwt);
         await window.localStorage.setItem(
           "__USER__",
           JSON.stringify(response.data.user)
         );
 
-        console.log(1);
         history.push("/app");
-        console.log(2);
       })
       .catch((error) => {
         console.error("[Login]", error.message);
