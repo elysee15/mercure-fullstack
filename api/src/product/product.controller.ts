@@ -8,6 +8,8 @@ import {
   Post,
   Put,
   Query,
+  Req,
+  Request
 } from '@nestjs/common';
 import { UserDecorateur } from 'src/decorateur/user.decorator';
 
@@ -26,17 +28,17 @@ export class ProductsController {
   }
 
   @Post()
-  async create(@Body() createProductDto: any, @UserDecorateur() user: any) {
-    return await this.service.create(createProductDto, user);
+  async create(@Body() createProductDto: any, @UserDecorateur() user: any, @Request() req: any) {
+    return await this.service.create(createProductDto, user, req);
   }
 
   @Put('/:id')
-  async update(@Param('id') id: string, @Body() productDto: any) {
-    return await this.service.update(id, productDto);
+  async update(@Param('id') id: string, @Body() productDto: any, @UserDecorateur() user: any, @Request() req: any) {
+    return await this.service.update(id, productDto, user, req);
   }
 
   @Delete('/:id')
-  async delete(@Param('id') id: string) {
-    return await this.service.deleteOne(id);
+  async delete(@Param('id') id: string, @UserDecorateur() user: any,@Request() req: any) {
+    return await this.service.deleteOne(id, user, req);
   }
 }

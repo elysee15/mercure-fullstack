@@ -6,39 +6,19 @@ import {
   ConflictException,
   NotFoundException,
 } from '@nestjs/common';
-import * as qs from 'qs';
-import * as http from 'http';
+import { MercureService } from '../utils/mercure-send-request';
 @Injectable()
 export class ProductsService {
   constructor(
     @Inject('PRODUCT_MODEL')
     private productModel: Model<Product>,
+    private mercureService: MercureService
   ) {}
 
-  async create(createProductDto: any, user: any) {
+  async create(createProductDto: any, user: any, req: any) {
     const createdProduct = new this.productModel(createProductDto);
     createdProduct['author'] = user['_id'];
-    const postData = qs.stringify({
-      topic: `ping/${user['_id']}`,
-      data: JSON.stringify({ data: createdProduct }),
-    });
-    try {
-      const req = await http.request({
-        hostname: 'localhost',
-        port: '8001',
-        path: '/.well-known/mercure',
-        method: 'POST',
-        headers: {
-          'content-type': 'application/x-www-form-urlencoded',
-          Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJtZXJjdXJlIjp7InB1Ymxpc2giOlsiKiJdfX0.ky_2ZpDtBh2x-vqs6STXDjCbuB7cL0c1NIG-SxITei4`,
-          'Content-Length': Buffer.byteLength(postData),
-        },
-      });
-      req.write(postData);
-      req.end();
-    } catch (err) {
-      console.log(err);
-    }
+    await this.mercureService.mercureSendRequest(user['_id'], createdProduct, req.method)
     return await createdProduct.save();
   }
 
@@ -53,15 +33,16 @@ export class ProductsService {
     return product;
   }
 
-  async update(id: string, updateProductDto: any): Promise<Product> {
+  async update(id: string, updateProductDto: any, user: any,  req: any): Promise<Product> {
     const product = await this.findOne(id);
     if (!product) {
       throw new NotFoundException(`Le produit avec l'id ${id} est introuvable`);
     }
-
-    return await this.productModel
-      .findByIdAndUpdate(id, updateProductDto, { new: true })
-      .exec();
+    const productUpdated = await this.productModel
+    .findByIdAndUpdate(id, updateProductDto, { new: true })
+    .exec();
+    await this.mercureService.mercureSendRequest(user['_id'], productUpdated, req.method)
+    return productUpdated;
   }
 
   async findAll(userId?: string): Promise<Product[]> {
@@ -72,12 +53,12 @@ export class ProductsService {
     return await this.productModel.find();
   }
 
-  async deleteOne(id: string): Promise<any> {
+  async deleteOne(id: string, user: any, req: any): Promise<any> {
     const deletedProduct = await this.productModel.findByIdAndDelete(id);
     if (!deletedProduct) {
       throw new ConflictException(`Impossible de supprimer ce produit`);
     }
-
+    await this.mercureService.mercureSendRequest(user['_id'], deletedProduct, req.method)
     return 1;
   }
 }
