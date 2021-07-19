@@ -1,7 +1,5 @@
 import * as mongoose from 'mongoose';
 
-const MONGO_URI = process.env.MONGO_URI;
-
 export const databaseProviders = [
   {
     provide: 'DATABASE_CONNECTION',
