@@ -26,7 +26,6 @@ export default function CreateProduct(props) {
         },
       })
       .then((response) => {
-        console.log(response.data);
         setProduct(response.data);
 
         history.push("/app");
@@ -34,8 +33,6 @@ export default function CreateProduct(props) {
       .catch((error) => {
         console.error("[CreateProduct] ", error.message);
       });
-
-    console.log(data);
   };
 
   return (

@@ -35,28 +35,6 @@ export default function App(props) {
     return JSON.parse(window.localStorage.getItem("__USER__"));
   });
 
-  const userId = userInfo._id || "";
-
-  React.useEffect(() => {
-    const url = new URL("http://localhost:8001/.well-known/mercure");
-    url.searchParams.append("topic", `ping/${userId}`);
-
-    const eventSource = new EventSource(url);
-
-    eventSource.onmessage = (e) => {
-      console.log("[EventSource]", e.data, "Un nouveau message est arrivé");
-    };
-
-    eventSource.onerror = (error) => {
-      console.error("[EventSource] ", error);
-    };
-    eventSource.onopen = (ev) => {
-      console.log("[EventSource]", "Une connexion a été ouverte");
-    };
-
-    return () => eventSource.close();
-  }, []);
-
   React.useEffect(() => {
     axios
       .get("http://localhost:3500/products", {

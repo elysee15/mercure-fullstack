@@ -7,7 +7,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import * as qs from 'qs';
-import * as http from 'http'
+import * as http from 'http';
 @Injectable()
 export class ProductsService {
   constructor(
@@ -19,28 +19,27 @@ export class ProductsService {
     const createdProduct = new this.productModel(createProductDto);
     createdProduct['author'] = user['_id'];
     const postData = qs.stringify({
-      'topic': `ping/${user['_id']}`,
-      'data': JSON.stringify({ data: createdProduct }),
-  });
-  try {
-    const req = await http.request({
-      hostname: 'localhost',
-      port: '8001',
-      path: '/.well-known/mercure',
-      method: 'POST',
-      headers: { 
-        'content-type': 'application/x-www-form-urlencoded',
-        Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJtZXJjdXJlIjp7InB1Ymxpc2giOlsiKiJdfX0.ky_2ZpDtBh2x-vqs6STXDjCbuB7cL0c1NIG-SxITei4`,
-        'Content-Length': Buffer.byteLength(postData),
-      },
-
-    })
-    req.write(postData);
-    req.end();
-} catch (err) {
-    console.log(err);
-}
-    // return await createdProduct.save();
+      topic: `ping/${user['_id']}`,
+      data: JSON.stringify({ data: createdProduct }),
+    });
+    try {
+      const req = await http.request({
+        hostname: 'localhost',
+        port: '8001',
+        path: '/.well-known/mercure',
+        method: 'POST',
+        headers: {
+          'content-type': 'application/x-www-form-urlencoded',
+          Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJtZXJjdXJlIjp7InB1Ymxpc2giOlsiKiJdfX0.ky_2ZpDtBh2x-vqs6STXDjCbuB7cL0c1NIG-SxITei4`,
+          'Content-Length': Buffer.byteLength(postData),
+        },
+      });
+      req.write(postData);
+      req.end();
+    } catch (err) {
+      console.log(err);
+    }
+    return await createdProduct.save();
   }
 
   async findOne(id: string): Promise<Product> {
@@ -48,7 +47,6 @@ export class ProductsService {
       .populate({ path: 'author', select: '_id' })
       .populate({ path: 'author', select: 'name' })
       .execPopulate();
-    console.log(product);
     if (!product) {
       throw new NotFoundException(`Le produit avec l'id ${id} est introuvable`);
     }
