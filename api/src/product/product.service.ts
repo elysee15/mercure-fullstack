@@ -6,7 +6,8 @@ import {
   ConflictException,
   NotFoundException,
 } from '@nestjs/common';
-
+import * as qs from 'qs';
+import * as http from 'http'
 @Injectable()
 export class ProductsService {
   constructor(
@@ -14,9 +15,32 @@ export class ProductsService {
     private productModel: Model<Product>,
   ) {}
 
-  async create(createProductDto: any): Promise<Product> {
+  async create(createProductDto: any, user: any) {
     const createdProduct = new this.productModel(createProductDto);
-    return await createdProduct.save();
+    createdProduct['author'] = user['_id'];
+    const postData = qs.stringify({
+      'topic': `ping/${user['_id']}`,
+      'data': JSON.stringify({ data: createdProduct }),
+  });
+  try {
+    const req = await http.request({
+      hostname: 'localhost',
+      port: '8001',
+      path: '/.well-known/mercure',
+      method: 'POST',
+      headers: { 
+        'content-type': 'application/x-www-form-urlencoded',
+        Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJtZXJjdXJlIjp7InB1Ymxpc2giOlsiKiJdfX0.ky_2ZpDtBh2x-vqs6STXDjCbuB7cL0c1NIG-SxITei4`,
+        'Content-Length': Buffer.byteLength(postData),
+      },
+
+    })
+    req.write(postData);
+    req.end();
+} catch (err) {
+    console.log(err);
+}
+    // return await createdProduct.save();
   }
 
   async findOne(id: string): Promise<Product> {
