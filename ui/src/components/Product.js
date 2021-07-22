@@ -5,8 +5,8 @@ export default function Product({ product }) {
     <Card style={{ width: "18rem" }}>
       <Card.Img variant="top" src={product?.src} />
       <Card.Body>
-        <Card.Title>{product?.title || "Default title"}</Card.Title>
-        <Card.Text>{product?.description || "Default description"}</Card.Text>
+        <Card.Title>{product?.title || "N/D"}</Card.Title>
+        <Card.Text>{product?.description || "N/D"}</Card.Text>
         <Button variant="primary" disabled>
           Details
         </Button>

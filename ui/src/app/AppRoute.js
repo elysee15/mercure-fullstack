@@ -4,16 +4,18 @@ import {
   Switch,
   Redirect,
 } from "react-router-dom";
+import React from "react";
 import App from "./App";
 import CreateProduct from "./CreateProduct";
 import Login from "./Login";
 import SignIn from "./SignIn";
-import React from "react";
+import { useNotificationCounter } from "../context/notification";
 
 export default function AppRoute() {
   const [userInfo] = React.useState(() => {
     return JSON.parse(window.localStorage.getItem("__USER__"));
   });
+  const [, setCounter] = useNotificationCounter();
 
   const userId = userInfo._id || "";
 
@@ -24,6 +26,7 @@ export default function AppRoute() {
     const eventSource = new EventSource(url);
 
     eventSource.onmessage = (e) => {
+      setCounter((value) => value + 1);
       console.log(
         `%c [EventSource] New message!: ${e.data}`,
         "background: #493593; color: #bada55"
@@ -38,8 +41,8 @@ export default function AppRoute() {
     };
 
     return () => {
-      // eventSource.close();
-      console.log("[EventSource]", "La connecxion est fermée");
+      eventSource.close();
+      console.log("[EventSource]", "La connexion a été fermée");
     };
   }, []);
 

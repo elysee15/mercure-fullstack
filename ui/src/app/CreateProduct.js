@@ -7,7 +7,7 @@ export default function CreateProduct(props) {
   const [title, setTitle] = React.useState("");
   const [description, setDescripition] = React.useState("");
   const [price, setPrice] = React.useState(0);
-  const [product, setProduct] = React.useState(null);
+  const [, setProduct] = React.useState(null);
   const history = useHistory();
 
   const handleSubmit = (e) => {

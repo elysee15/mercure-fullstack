@@ -1,61 +1,24 @@
 import { Container, Row, Col, Nav, Button, Badge } from "react-bootstrap";
 import Product from "../components/Product";
-import axios from "axios";
 import React from "react";
 import { Link } from "react-router-dom";
-
-const useEventSource = (url, withCredentials, topic = "") => {
-  // const [data, setEvent] = React.useState(null);
-  // const [status, setStatus] = React.useState("closed");
-  // const source = React.useRef(null);
-  // const _url = new URL(url);
-  // _url.searchParams.append("topic", topic);
-  // const eventSource = new EventSource(_url, {
-  //   withCredentials,
-  // });
-  // source.current = eventSource;
-  // eventSource.onmessage = (event) => {
-  //   console.log("[EventSource]", event, "Un nouveau message est arrivé");
-  //   setEvent(event.data);
-  // };
-  // eventSource.onerror = (error) => {
-  //   console.error("[EventSource] ", error);
-  //   setStatus("error");
-  // };
-  // eventSource.onopen = (ev) => {
-  //   console.log("[EventSource]", "Une connexion a été ouverte");
-  //   setStatus("opened");
-  // };
-  // return [data, status];
-};
+import { useNotificationCounter } from "../context/notification";
+import { useSelector, useDispatch } from "react-redux";
+import * as types from "../store/constants/actionTypes";
 
 export default function App(props) {
-  const [products, setProducts] = React.useState([]);
+  // const [products, setProducts] = React.useState([]);
   const [userInfo] = React.useState(() => {
     return JSON.parse(window.localStorage.getItem("__USER__"));
   });
+  const products = useSelector((state) => state.products.data);
+  const isLoading = useSelector((state) => state.products.isLoading);
+  const dispatch = useDispatch();
+  const [counter] = useNotificationCounter();
 
   React.useEffect(() => {
-    axios
-      .get("http://localhost:3500/products", {
-        headers: {
-          Authorization: "Bearer " + window.localStorage.getItem("__TOKEN__"),
-        },
-      })
-      .then((response) => {
-        const data = response.data.map((item) => {
-          const oldId = item._id;
-          item["id"] = oldId;
-          delete item._id;
-          delete item.__v;
-          return item;
-        });
-        setProducts(data);
-      })
-      .catch((error) => {
-        console.error("[App] useEffect:", error.message);
-      });
-  }, []);
+    dispatch({ type: types.FETCH_PRODUCT });
+  }, [dispatch]);
 
   return (
     <Container className="pt-5">
@@ -65,7 +28,7 @@ export default function App(props) {
         </Nav.Item>
         <Nav.Item className="" style={{ marginLeft: "auto" }}>
           <Button variant="danger" style={{ marginRight: "12px" }}>
-            Notification <Badge bg="success">0</Badge>
+            Notification <Badge bg="success">{counter}</Badge>
             <span className="visually-hidden">unread messages</span>
           </Button>
           <Link to="/create">
@@ -75,16 +38,19 @@ export default function App(props) {
           </Link>
         </Nav.Item>
       </Nav>
-      <Row>
-        {products &&
-          products.map((product) => {
-            return (
-              <Col key={product.id}>
-                <Product product={product} />
-              </Col>
-            );
-          })}
-      </Row>
+      {isLoading && <div>Chargement des donnée</div>}
+      {!isLoading && (
+        <Row>
+          {products &&
+            products.map((product) => {
+              return (
+                <Col key={product._id}>
+                  <Product product={product} />
+                </Col>
+              );
+            })}
+        </Row>
+      )}
     </Container>
   );
 }
