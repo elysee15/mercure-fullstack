@@ -3,16 +3,25 @@ import {
 } from '@nestjs/common';
 import * as qs from 'qs';
 import * as http from 'http';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class MercureService {
-  constructor() {}
+  constructor(
+    private jwtService: JwtService
+  ) {}
 
   async mercureSendRequest(userId: string, createdProduct: any, request: any){
     const postData = qs.stringify({
       topic: `ping/${userId}`,
       data: JSON.stringify({ data: createdProduct, request}),
     });
+    const payload = {
+      "mercure": {
+        "publish": ["*"]
+      }
+    }
+    const tokenMercure = this.jwtService.sign(payload);
     try {
       const req = await http.request({
         hostname: 'localhost',
@@ -21,7 +30,7 @@ export class MercureService {
         method: 'POST',
         headers: {
           'content-type': 'application/x-www-form-urlencoded',
-          Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJtZXJjdXJlIjp7InB1Ymxpc2giOlsiKiJdfX0.ky_2ZpDtBh2x-vqs6STXDjCbuB7cL0c1NIG-SxITei4`,
+          Authorization: `Bearer ${tokenMercure}`,
           'Content-Length': Buffer.byteLength(postData),
         },
       });
